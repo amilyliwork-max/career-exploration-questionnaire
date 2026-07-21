@@ -1,31 +1,48 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { isSupabaseConfigured } from '../lib/supabase'
+import { fetchExportData } from '../questionnaire/submit'
 
 interface ExportPayload {
   responses: Record<string, unknown>[]
   email_subscriptions: Record<string, unknown>[]
 }
 
+function downloadJson(data: ExportPayload) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {
+    type: 'application/json',
+  })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'career-questionnaire-export.json'
+  a.click()
+  URL.revokeObjectURL(url)
+}
+
 export function AdminExportPage() {
   const [data, setData] = useState<ExportPayload | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const usingSupabase = isSupabaseConfigured()
 
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const res = await fetch('/api/export?format=json')
-      if (!res.ok) throw new Error('Could not load responses.')
-      const json = (await res.json()) as ExportPayload
+      const json = await fetchExportData()
       setData(json)
     } catch {
-      setError('Could not load responses. Is the API server running?')
+      setError(
+        usingSupabase
+          ? 'Could not load responses from Supabase.'
+          : 'Could not load responses. Is the API server running?',
+      )
       setData(null)
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [usingSupabase])
 
   useEffect(() => {
     void load()
@@ -39,7 +56,9 @@ export function AdminExportPage() {
             Response export
           </h1>
           <p className="mt-2 text-[var(--color-muted)]">
-            Local admin view. Protect this page before deploying publicly.
+            {usingSupabase
+              ? 'Reading questionnaire answers from Supabase. Emails are viewed in the Supabase dashboard for privacy.'
+              : 'Local admin view. Protect this page before deploying publicly.'}
           </p>
         </div>
         <Link
@@ -58,18 +77,31 @@ export function AdminExportPage() {
         >
           Refresh
         </button>
-        <a
-          href="/api/export?format=json"
-          className="rounded-2xl border border-[var(--color-border)] bg-white px-4 py-2 font-medium"
-        >
-          Download JSON
-        </a>
-        <a
-          href="/api/export?format=csv"
-          className="rounded-2xl border border-[var(--color-border)] bg-white px-4 py-2 font-medium"
-        >
-          Download CSV
-        </a>
+        {usingSupabase ? (
+          <button
+            type="button"
+            disabled={!data}
+            onClick={() => data && downloadJson(data)}
+            className="rounded-2xl border border-[var(--color-border)] bg-white px-4 py-2 font-medium disabled:opacity-50"
+          >
+            Download JSON
+          </button>
+        ) : (
+          <>
+            <a
+              href="/api/export?format=json"
+              className="rounded-2xl border border-[var(--color-border)] bg-white px-4 py-2 font-medium"
+            >
+              Download JSON
+            </a>
+            <a
+              href="/api/export?format=csv"
+              className="rounded-2xl border border-[var(--color-border)] bg-white px-4 py-2 font-medium"
+            >
+              Download CSV
+            </a>
+          </>
+        )}
       </div>
 
       {loading && <p>Loading…</p>}
@@ -86,7 +118,9 @@ export function AdminExportPage() {
               Questionnaire responses ({data.responses.length})
             </h2>
             <p className="mb-3 text-sm text-[var(--color-muted)]">
-              Stored in <code>data/responses.jsonl</code>
+              {usingSupabase
+                ? 'Stored in Supabase table questionnaire_responses'
+                : 'Stored in data/responses.jsonl'}
             </p>
             <pre className="max-h-96 overflow-auto rounded-xl bg-[var(--color-bg)] p-3 text-xs">
               {JSON.stringify(data.responses, null, 2)}
@@ -97,7 +131,9 @@ export function AdminExportPage() {
               Email subscriptions ({data.email_subscriptions.length})
             </h2>
             <p className="mb-3 text-sm text-[var(--color-muted)]">
-              Stored separately in <code>data/email_subscriptions.jsonl</code>
+              {usingSupabase
+                ? 'Open Supabase → Table Editor → email_subscriptions to view emails.'
+                : 'Stored separately in data/email_subscriptions.jsonl'}
             </p>
             <pre className="max-h-96 overflow-auto rounded-xl bg-white/70 p-3 text-xs">
               {JSON.stringify(data.email_subscriptions, null, 2)}

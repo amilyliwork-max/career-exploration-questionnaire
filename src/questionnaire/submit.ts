@@ -1,4 +1,5 @@
 import { isBranchA } from './branching'
+import { getSupabase, isSupabaseConfigured } from '../lib/supabase'
 import type {
   AnswerState,
   MarketingRecord,
@@ -83,6 +84,68 @@ export function buildSubmissionPayload(answers: AnswerState): SubmitPayload {
   return { submission_id, answers: response, marketing }
 }
 
+async function submitToSupabase(
+  payload: SubmitPayload,
+): Promise<{ ok: true; submission_id: string } | { ok: false; error: string }> {
+  const supabase = getSupabase()
+  if (!supabase) {
+    return { ok: false, error: 'Supabase is not configured.' }
+  }
+
+  const { error: responseError } = await supabase
+    .from('questionnaire_responses')
+    .insert({
+      submission_id: payload.submission_id,
+      submitted_at: payload.answers.submitted_at,
+      payload: payload.answers,
+    })
+
+  if (responseError) {
+    return {
+      ok: false,
+      error: responseError.message || 'Could not save your responses.',
+    }
+  }
+
+  if (payload.marketing) {
+    const { error: emailError } = await supabase
+      .from('email_subscriptions')
+      .insert({
+        submission_id: payload.marketing.submission_id,
+        email: payload.marketing.email,
+        email_owner: payload.marketing.email_owner,
+        email_owner_other: payload.marketing.email_owner_other,
+        submitted_at: payload.marketing.submitted_at,
+      })
+
+    if (emailError) {
+      // Response already saved; surface a soft warning as failure so user can retry email path if needed.
+      return {
+        ok: false,
+        error:
+          'Your answers were saved, but the email signup failed. Please try again or skip email.',
+      }
+    }
+  }
+
+  return { ok: true, submission_id: payload.submission_id }
+}
+
+async function submitToLocalApi(
+  payload: SubmitPayload,
+): Promise<{ ok: true; submission_id: string } | { ok: false; error: string }> {
+  const res = await fetch('/api/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  })
+  if (!res.ok) {
+    const text = await res.text()
+    return { ok: false, error: text || 'Could not submit. Please try again.' }
+  }
+  return { ok: true, submission_id: payload.submission_id }
+}
+
 let inFlight = false
 
 export async function submitQuestionnaire(
@@ -94,22 +157,49 @@ export async function submitQuestionnaire(
   inFlight = true
   try {
     const payload = buildSubmissionPayload(answers)
-    const res = await fetch('/api/submit', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-    if (!res.ok) {
-      const text = await res.text()
-      return { ok: false, error: text || 'Could not submit. Please try again.' }
+    if (isSupabaseConfigured()) {
+      return await submitToSupabase(payload)
     }
-    return { ok: true, submission_id: payload.submission_id }
+    return await submitToLocalApi(payload)
   } catch {
     return {
       ok: false,
-      error: 'Could not reach the server. Make sure the app is running.',
+      error: isSupabaseConfigured()
+        ? 'Could not submit right now. Please try again.'
+        : 'Could not reach the server. Make sure the app is running.',
     }
   } finally {
     inFlight = false
+  }
+}
+
+export async function fetchExportData(): Promise<{
+  responses: Record<string, unknown>[]
+  email_subscriptions: Record<string, unknown>[]
+}> {
+  if (isSupabaseConfigured()) {
+    const supabase = getSupabase()
+    if (!supabase) {
+      throw new Error('Supabase is not configured.')
+    }
+
+    const { data, error } = await supabase
+      .from('questionnaire_responses')
+      .select('payload')
+      .order('submitted_at', { ascending: false })
+
+    if (error) throw new Error(error.message)
+
+    return {
+      responses: (data ?? []).map((row) => row.payload as Record<string, unknown>),
+      email_subscriptions: [],
+    }
+  }
+
+  const res = await fetch('/api/export?format=json')
+  if (!res.ok) throw new Error('Could not load responses.')
+  return (await res.json()) as {
+    responses: Record<string, unknown>[]
+    email_subscriptions: Record<string, unknown>[]
   }
 }
