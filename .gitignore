@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local questionnaire response data
+data/*.jsonl
+!data/.gitkeep
