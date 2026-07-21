@@ -19,9 +19,9 @@ export const QUESTIONS: QuestionDef[] = [
   {
     id: 'welcome',
     type: 'info',
-    title: 'Career Exploration Questionnaire',
+    title: 'Help Us Design Better Career Exploration Experiences',
     helper:
-      'This questionnaire will help us design career exploration events around students’ real interests, questions, and concerns. There are no right or wrong answers, and it is completely okay if you are unsure. Most students finish in about 5–7 minutes.',
+      'FutureBright Youth is gathering student input to design a career exploration initiative for middle and high school students. There are no right or wrong answers. Most students finish in about 5–7 minutes.',
     branch: 'all',
   },
   {

@@ -9,7 +9,6 @@ import { StepShell } from '../components/StepShell'
 import { TextAreaQuestion } from '../components/TextAreaQuestion'
 import { useQuestionnaire } from '../context/QuestionnaireContext'
 import { getQuestion, getStepTitle } from '../questionnaire/branching'
-import { QUESTIONS } from '../questionnaire/schema'
 import {
   OTHER_OPTION_VALUE,
   getOtherDetail,
@@ -74,7 +73,6 @@ export function QuestionFlowPage() {
 
   const headingRef = useRef<HTMLDivElement>(null)
   const pendingAdvance = useRef(false)
-  const welcome = QUESTIONS.find((q) => q.id === 'welcome')
 
   useEffect(() => {
     headingRef.current?.focus()
@@ -92,47 +90,98 @@ export function QuestionFlowPage() {
 
   if (currentStepId === 'welcome') {
     return (
-      <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col justify-center px-4 py-10 sm:px-6">
+      <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col px-4 py-10 sm:px-6 sm:py-14">
         <div className="step-enter rounded-[1.75rem] border border-[var(--color-border)] bg-white/95 p-6 shadow-sm sm:p-10">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--color-accent)]">
+          <img
+            src="/futurebright-youth-logo.png"
+            alt="FutureBright Youth"
+            className="mx-auto h-auto w-[11rem] sm:w-[13rem]"
+            width={208}
+            height={208}
+          />
+          <h1 className="mt-5 text-center font-[family-name:var(--font-display)] text-[1.625rem] font-semibold leading-[1.25] tracking-[-0.01em] sm:mt-6 sm:text-[2.125rem]">
+            Help Us Design Better Career Exploration Experiences
+          </h1>
+          <p className="mt-3 text-center text-sm font-medium text-[var(--color-muted)] sm:text-[0.9375rem]">
             Grades 6–12 · About 5–7 minutes
           </p>
-          <h1 className="font-[family-name:var(--font-display)] text-[1.625rem] font-semibold leading-[1.25] tracking-[-0.01em] sm:text-[2.25rem]">
-            {typeof welcome?.title === 'string'
-              ? welcome.title
-              : 'Career Exploration Questionnaire'}
-          </h1>
-          <p className="mt-3 text-[1rem] leading-[1.55] text-[var(--color-muted)] sm:mt-4 sm:text-[1.125rem] sm:leading-[1.65]">
-            Help us design career exploration events around what students actually
-            want to learn and experience.
-          </p>
-          <ul className="mt-5 space-y-3 text-[1rem] leading-[1.5] text-[var(--color-ink)] sm:mt-6 sm:space-y-3.5 sm:text-[1.0625rem]">
-            <li className="flex gap-3">
-              <span
-                className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[var(--color-accent)]"
-                aria-hidden
-              />
-              <span>There are no right or wrong answers.</span>
-            </li>
-            <li className="flex gap-3">
-              <span
-                className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[var(--color-accent)]"
-                aria-hidden
-              />
-              <span>It is completely okay if you are unsure.</span>
-            </li>
-            <li className="flex gap-3">
-              <span
-                className="mt-1 h-2 w-2 shrink-0 rounded-full bg-[var(--color-accent)]"
-                aria-hidden
-              />
-              <span>This is not a career-matching test.</span>
-            </li>
-          </ul>
+
+          <section className="mt-8 space-y-3 sm:mt-10">
+            <h2 className="text-[1.0625rem] font-semibold sm:text-[1.125rem]">
+              About FutureBright Youth
+            </h2>
+            <p className="text-[1rem] leading-[1.55] text-[var(--color-muted)] sm:text-[1.0625rem] sm:leading-[1.65]">
+              FutureBright Youth is a nonprofit organization dedicated to
+              supporting and empowering young people through youth-centered
+              programs, community support, and educational opportunities.
+            </p>
+          </section>
+
+          <section className="mt-7 space-y-3 sm:mt-8">
+            <h2 className="text-[1.0625rem] font-semibold sm:text-[1.125rem]">
+              What We Are Creating
+            </h2>
+            <p className="text-[1rem] leading-[1.55] text-[var(--color-muted)] sm:text-[1.0625rem] sm:leading-[1.65]">
+              We are developing a career exploration initiative for middle and
+              high school students, especially those who feel uncertain about
+              college majors, career options, or their future direction.
+            </p>
+            <p className="text-[1rem] leading-[1.55] text-[var(--color-muted)] sm:text-[1.0625rem] sm:leading-[1.65]">
+              Students are often expected to make important academic and career
+              decisions before they have had many opportunities to understand what
+              different professions are actually like. Much of what they know may
+              come from family, school, social media, or a small number of highly
+              visible careers.
+            </p>
+          </section>
+
+          <section className="mt-7 space-y-3 sm:mt-8">
+            <h2 className="text-[1.0625rem] font-semibold sm:text-[1.125rem]">
+              Why Your Input Matters
+            </h2>
+            <p className="text-[1rem] leading-[1.55] text-[var(--color-muted)] sm:text-[1.0625rem] sm:leading-[1.65]">
+              This questionnaire will help us understand students’ real interests,
+              questions, concerns, and preferred ways of learning.
+            </p>
+            <p className="text-[1rem] leading-[1.55] text-[var(--color-muted)] sm:text-[1.0625rem] sm:leading-[1.65]">
+              Your responses will directly guide:
+            </p>
+            <ul className="space-y-1 text-[1rem] leading-[1.55] text-[var(--color-muted)] sm:text-[1.0625rem] sm:leading-[1.65]">
+              {[
+                'the career topics we cover;',
+                'the professionals and speakers we invite;',
+                'the activities and event formats we design; and',
+                'the questions we ask during future events.',
+              ].map((item) => (
+                <li key={item} className="flex gap-3">
+                  <span
+                    className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--color-accent)]"
+                    aria-hidden
+                  />
+                  <span className="font-semibold italic text-[var(--color-ink)]">
+                    {item}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="pt-1 text-[1rem] leading-[1.55] text-[var(--color-muted)] sm:text-[1.0625rem] sm:leading-[1.65]">
+              There are no right or wrong answers. It is completely okay if you
+              are unsure, have several interests, or have not started thinking
+              about careers yet.
+            </p>
+            <p className="text-[1rem] leading-[1.55] text-[var(--color-muted)] sm:text-[1.0625rem] sm:leading-[1.65]">
+              The questionnaire takes approximately{' '}
+              <strong className="font-semibold text-[var(--color-ink)]">
+                5–7 minutes
+              </strong>{' '}
+              to complete.
+            </p>
+          </section>
+
           <button
             type="button"
             onClick={start}
-            className="mt-8 min-h-12 w-full rounded-2xl bg-[var(--color-accent)] px-6 py-3 font-semibold text-white shadow-sm hover:bg-[var(--color-accent-hover)] sm:w-auto"
+            className="mt-8 min-h-12 w-full rounded-2xl bg-[var(--color-accent)] px-6 py-3 font-semibold text-white shadow-sm hover:bg-[var(--color-accent-hover)] sm:mt-10 sm:w-auto"
           >
             Start questionnaire
           </button>
@@ -145,23 +194,32 @@ export function QuestionFlowPage() {
     return (
       <div className="mx-auto flex min-h-screen w-full max-w-2xl flex-col justify-center px-4 py-10">
         <div className="step-enter rounded-[1.75rem] border border-[var(--color-border)] bg-white p-6 sm:p-10">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--color-accent)]">
+          <img
+            src="/futurebright-youth-logo.png"
+            alt="FutureBright Youth"
+            className="mx-auto h-auto w-[8.5rem] sm:w-[10rem]"
+            width={160}
+            height={160}
+          />
+          <p className="mt-5 mb-3 text-center text-sm font-semibold uppercase tracking-wide text-[var(--color-accent)]">
             Done
           </p>
-          <h1 className="font-[family-name:var(--font-display)] text-[1.625rem] font-semibold leading-[1.25] sm:text-[2.25rem]">
+          <h1 className="text-center font-[family-name:var(--font-display)] text-[1.625rem] font-semibold leading-[1.25] sm:text-[2.25rem]">
             Thank you for sharing
           </h1>
-          <p className="mt-4 text-[1rem] leading-[1.55] text-[var(--color-muted)] sm:mt-5 sm:text-[1.125rem] sm:leading-[1.65]">
+          <p className="mt-4 text-center text-[1rem] leading-[1.55] text-[var(--color-muted)] sm:mt-5 sm:text-[1.125rem] sm:leading-[1.65]">
             Your responses will help us create a career exploration event based on
             what students actually want to understand and experience.
           </p>
-          <button
-            type="button"
-            onClick={reset}
-            className="mt-8 min-h-12 rounded-2xl border border-[var(--color-border)] px-5 py-3 font-medium transition hover:border-[var(--color-accent)] hover:bg-[var(--color-accent-soft)]"
-          >
-            Start over
-          </button>
+          <div className="mt-8 flex justify-center">
+            <button
+              type="button"
+              onClick={reset}
+              className="min-h-12 rounded-2xl border border-[var(--color-border)] px-5 py-3 font-medium transition hover:border-[var(--color-accent)] hover:bg-[var(--color-accent-soft)]"
+            >
+              Start over
+            </button>
+          </div>
         </div>
       </div>
     )

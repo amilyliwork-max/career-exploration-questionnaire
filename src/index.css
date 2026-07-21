@@ -2,16 +2,17 @@
 @import 'tailwindcss';
 
 :root {
-  --color-bg: #f3f6f4;
+  /* FutureBright Youth logo palette: pink heart + warm gold rays */
+  --color-bg: #faf4f6;
   --color-surface: #ffffff;
-  --color-ink: #14201b;
-  --color-muted: #3f5249;
-  --color-border: #c9d5ce;
-  --color-accent: #2a6757;
-  --color-accent-soft: #e3f0eb;
-  --color-accent-hover: #215345;
-  --color-focus: #1f7a63;
-  --color-warn-bg: #f6f1e6;
+  --color-ink: #1a1516;
+  --color-muted: #6a565c;
+  --color-border: #e8d0d7;
+  --color-accent: #e07a93;
+  --color-accent-soft: #fce8ee;
+  --color-accent-hover: #c9657f;
+  --color-focus: #d46a85;
+  --color-warn-bg: #f7efe4;
   --font-sans: 'DM Sans', system-ui, sans-serif;
   --font-display: 'Fraunces', Georgia, serif;
   --text-body: 1rem;
@@ -52,8 +53,8 @@ body {
   letter-spacing: 0.01em;
   color: var(--color-ink);
   background:
-    radial-gradient(1200px 600px at 10% -10%, #e7f2ee 0%, transparent 55%),
-    radial-gradient(900px 500px at 100% 0%, #eef3f0 0%, transparent 50%),
+    radial-gradient(1200px 600px at 10% -10%, #fce4eb 0%, transparent 55%),
+    radial-gradient(900px 500px at 100% 0%, #f5eadc 0%, transparent 50%),
     var(--color-bg);
 }
 
@@ -79,7 +80,7 @@ textarea {
 }
 
 ::placeholder {
-  color: #6b7f75;
+  color: #9a8088;
   opacity: 1;
 }
 
